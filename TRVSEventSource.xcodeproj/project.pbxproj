@@ -52,6 +52,7 @@
 		3275253D18047A3A00CF5D6F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3275255118047A3B00CF5D6F /* TRVSEventSourceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TRVSEventSourceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3275255218047A3B00CF5D6F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		32A659661805C1A00056F07A /* TRVSEventSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSource.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +86,7 @@
 				320012361804FED200C250EC /* TRVSServerSentEvent.m */,
 				320012391804FED200C250EC /* TRVSEventSourceSessionManager.h */,
 				3200123A1804FED200C250EC /* TRVSEventSourceSessionManager.m */,
+				32A659661805C1A00056F07A /* TRVSEventSource.h */,
 			);
 			path = TRVSEventSource;
 			sourceTree = "<group>";
@@ -193,7 +195,7 @@
 				ORGANIZATIONNAME = "Travis Jeffery";
 				TargetAttributes = {
 					3275255018047A3B00CF5D6F = {
-						TestTargetID = 3275253518047A3A00CF5D6F /* TRVSEventSource */;
+						TestTargetID = 3275253518047A3A00CF5D6F;
 					};
 				};
 			};
