@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		320012441804FED200C250EC /* TRVSServerSentEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 320012361804FED200C250EC /* TRVSServerSentEvent.m */; };
-		320012461804FED200C250EC /* TRVSEventSourceSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3200123A1804FED200C250EC /* TRVSEventSourceSessionManager.m */; };
+		320012461804FED200C250EC /* TRVSEventSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 3200123A1804FED200C250EC /* TRVSEventSource.m */; };
 		3200124C1804FFF200C250EC /* TRVSEventSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3200123E1804FED200C250EC /* TRVSEventSourceTests.m */; };
 		3229E073180525AF0059B929 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3229E06C180525AF0059B929 /* Images.xcassets */; };
 		3229E074180525AF0059B929 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3229E06D180525AF0059B929 /* main.m */; };
@@ -34,8 +34,8 @@
 /* Begin PBXFileReference section */
 		320012351804FED200C250EC /* TRVSServerSentEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSServerSentEvent.h; sourceTree = "<group>"; };
 		320012361804FED200C250EC /* TRVSServerSentEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRVSServerSentEvent.m; sourceTree = "<group>"; };
-		320012391804FED200C250EC /* TRVSEventSourceSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSourceSessionManager.h; sourceTree = "<group>"; };
-		3200123A1804FED200C250EC /* TRVSEventSourceSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRVSEventSourceSessionManager.m; sourceTree = "<group>"; };
+		320012391804FED200C250EC /* TRVSEventSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSource.h; sourceTree = "<group>"; };
+		3200123A1804FED200C250EC /* TRVSEventSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRVSEventSource.m; sourceTree = "<group>"; };
 		3200123D1804FED200C250EC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3200123E1804FED200C250EC /* TRVSEventSourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRVSEventSourceTests.m; sourceTree = "<group>"; };
 		3200123F1804FED200C250EC /* TRVSEventSourceTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TRVSEventSourceTests-Info.plist"; sourceTree = "<group>"; };
@@ -52,7 +52,7 @@
 		3275253D18047A3A00CF5D6F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3275255118047A3B00CF5D6F /* TRVSEventSourceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TRVSEventSourceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3275255218047A3B00CF5D6F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		32A659661805C1A00056F07A /* TRVSEventSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSource.h; sourceTree = "<group>"; };
+		32A659671805C5A30056F07A /* TRVSEventSourceDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSourceDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,9 +84,9 @@
 			children = (
 				320012351804FED200C250EC /* TRVSServerSentEvent.h */,
 				320012361804FED200C250EC /* TRVSServerSentEvent.m */,
-				320012391804FED200C250EC /* TRVSEventSourceSessionManager.h */,
-				3200123A1804FED200C250EC /* TRVSEventSourceSessionManager.m */,
-				32A659661805C1A00056F07A /* TRVSEventSource.h */,
+				320012391804FED200C250EC /* TRVSEventSource.h */,
+				3200123A1804FED200C250EC /* TRVSEventSource.m */,
+				32A659671805C5A30056F07A /* TRVSEventSourceDelegate.h */,
 			);
 			path = TRVSEventSource;
 			sourceTree = "<group>";
@@ -195,7 +195,7 @@
 				ORGANIZATIONNAME = "Travis Jeffery";
 				TargetAttributes = {
 					3275255018047A3B00CF5D6F = {
-						TestTargetID = 3275253518047A3A00CF5D6F;
+						TestTargetID = 3275253518047A3A00CF5D6F /* TRVSEventSource */;
 					};
 				};
 			};
@@ -242,7 +242,7 @@
 			files = (
 				320012441804FED200C250EC /* TRVSServerSentEvent.m in Sources */,
 				3229E074180525AF0059B929 /* main.m in Sources */,
-				320012461804FED200C250EC /* TRVSEventSourceSessionManager.m in Sources */,
+				320012461804FED200C250EC /* TRVSEventSource.m in Sources */,
 				3229E075180525AF0059B929 /* TRVSAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
