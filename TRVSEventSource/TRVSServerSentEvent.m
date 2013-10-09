@@ -10,8 +10,8 @@
 
 @interface TRVSServerSentEvent ()
 
-@property (nonatomic, copy, readwrite) NSString *type;
-@property (nonatomic, copy, readwrite) NSString *ID;
+@property (nonatomic, copy, readwrite) NSString *event;
+@property (nonatomic, copy, readwrite) NSString *identifier;
 @property (nonatomic, readwrite) NSTimeInterval retry;
 @property (nonatomic, copy, readwrite) NSString *dataString;
 @property (nonatomic, copy, readwrite) NSDictionary *dataDictionary;
@@ -22,8 +22,8 @@
 
 + (instancetype)eventWithType:(NSString *)type ID:(NSString *)ID dataString:(NSString *)dataString retry:(NSTimeInterval)retry {
     TRVSServerSentEvent *event = [[self alloc] init];
-    event.type = type;
-    event.ID = ID;
+    event.event = type;
+    event.identifier = ID;
     event.dataString = dataString;
     event.retry = retry;
     return event;
@@ -50,7 +50,7 @@
 
 + (NSDictionary *)eventFieldsDictionary {
     return @{
-         @"event": @"type",
+         @"event": @"event",
          @"id": @"ID",
          @"data": @"dataString"
      };
