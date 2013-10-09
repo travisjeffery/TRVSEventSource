@@ -111,7 +111,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
         case NSStreamEventHasSpaceAvailable: {
             NSData *data = [stream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
             NSError *error = nil;
-            TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:[data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)] error:&error];
+            TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:[data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)] error:error];
             self.offset = [data length];
 
             if (error) {
