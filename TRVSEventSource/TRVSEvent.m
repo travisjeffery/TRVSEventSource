@@ -13,17 +13,18 @@
 @property (nonatomic, copy, readwrite) NSString *type;
 @property (nonatomic, copy, readwrite) NSString *ID;
 @property (nonatomic, readwrite) NSTimeInterval retry;
-@property (nonatomic, copy, readwrite) NSData *data;
+@property (nonatomic, copy, readwrite) NSString *dataString;
+@property (nonatomic, copy, readwrite) NSDictionary *dataDictionary;
 
 @end
 
 @implementation TRVSEvent
 
-+ (instancetype)eventWithType:(NSString *)type ID:(NSString *)ID data:(NSData *)data retry:(NSTimeInterval)retry {
++ (instancetype)eventWithType:(NSString *)type ID:(NSString *)ID dataString:(NSString *)dataString retry:(NSTimeInterval)retry {
     TRVSEvent *event = [[self alloc] init];
     event.type = type;
     event.ID = ID;
-    event.data = data;
+    event.dataString = dataString;
     event.retry = retry;
     return event;
 }
@@ -50,8 +51,14 @@
     return @{
          @"event": @"type",
          @"id": @"ID",
-         @"data": @"data"
+         @"data": @"dataString"
      };
+}
+
+- (NSDictionary *)dataDictionary {
+    if (_dataDictionary) return _dataDictionary;
+    _dataDictionary = [NSJSONSerialization JSONObjectWithData:[self.dataString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:NULL];
+    return _dataDictionary;
 }
 
 @end

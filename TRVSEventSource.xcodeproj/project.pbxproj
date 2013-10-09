@@ -195,7 +195,7 @@
 				ORGANIZATIONNAME = "Travis Jeffery";
 				TargetAttributes = {
 					3275255018047A3B00CF5D6F = {
-						TestTargetID = 3275253518047A3A00CF5D6F;
+						TestTargetID = 3275253518047A3A00CF5D6F /* TRVSEventSource */;
 					};
 				};
 			};
