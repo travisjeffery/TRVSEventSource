@@ -9,13 +9,10 @@
 /* Begin PBXBuildFile section */
 		320012441804FED200C250EC /* TRVSEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 320012361804FED200C250EC /* TRVSEvent.m */; };
 		320012461804FED200C250EC /* TRVSEventSourceSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3200123A1804FED200C250EC /* TRVSEventSourceSessionManager.m */; };
-		320012471804FED200C250EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3200123C1804FED200C250EC /* InfoPlist.strings */; };
 		3200124C1804FFF200C250EC /* TRVSEventSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3200123E1804FED200C250EC /* TRVSEventSourceTests.m */; };
-		3229E072180525AF0059B929 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3229E06A180525AF0059B929 /* InfoPlist.strings */; };
 		3229E073180525AF0059B929 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3229E06C180525AF0059B929 /* Images.xcassets */; };
 		3229E074180525AF0059B929 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3229E06D180525AF0059B929 /* main.m */; };
 		3229E075180525AF0059B929 /* TRVSAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3229E06F180525AF0059B929 /* TRVSAppDelegate.m */; };
-		3229E076180525AF0059B929 /* TRVSEventSource-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3229E070180525AF0059B929 /* TRVSEventSource-Info.plist */; };
 		3275253A18047A3A00CF5D6F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253918047A3A00CF5D6F /* Foundation.framework */; };
 		3275253C18047A3A00CF5D6F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253B18047A3A00CF5D6F /* CoreGraphics.framework */; };
 		3275253E18047A3A00CF5D6F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253D18047A3A00CF5D6F /* UIKit.framework */; };
@@ -224,9 +221,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3229E073180525AF0059B929 /* Images.xcassets in Resources */,
-				320012471804FED200C250EC /* InfoPlist.strings in Resources */,
-				3229E072180525AF0059B929 /* InfoPlist.strings in Resources */,
-				3229E076180525AF0059B929 /* TRVSEventSource-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,8 +361,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TRVSEventSource/TRVSEventSource-Prefix.pch";
-				INFOPLIST_FILE = "TRVSEventSource/TRVSEventSource-Info.plist";
+				GCC_PREFIX_HEADER = "TRVSEventSourceExample/TRVSEventSource-Prefix.pch";
+				INFOPLIST_FILE = "TRVSEventSourceExample/TRVSEventSource-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = TRVSEventSource;
 				WRAPPER_EXTENSION = app;
 			};
@@ -380,8 +375,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TRVSEventSource/TRVSEventSource-Prefix.pch";
-				INFOPLIST_FILE = "TRVSEventSource/TRVSEventSource-Info.plist";
+				GCC_PREFIX_HEADER = "TRVSEventSourceExample/TRVSEventSource-Prefix.pch";
+				INFOPLIST_FILE = "TRVSEventSourceExample/TRVSEventSource-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = TRVSEventSource;
 				WRAPPER_EXTENSION = app;
 			};
@@ -398,7 +394,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TRVSEventSource/TRVSEventSource-Prefix.pch";
+				GCC_PREFIX_HEADER = "TRVSEventSourceExample/TRVSEventSource-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -421,7 +417,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TRVSEventSource/TRVSEventSource-Prefix.pch";
+				GCC_PREFIX_HEADER = "TRVSEventSourceExample/TRVSEventSource-Prefix.pch";
 				INFOPLIST_FILE = "TRVSEventSourceTests/TRVSEventSourceTests-Info.plist";
 				PRODUCT_NAME = TRVSEventSourceTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";

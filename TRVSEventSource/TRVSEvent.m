@@ -33,9 +33,10 @@
     TRVSEvent *event = [[self alloc] init];
     NSArray *fields = [self fieldsFromData:data];
     [fields enumerateObjectsUsingBlock:^(NSString *field, NSUInteger idx, BOOL *stop) {
-        NSArray *components = [field componentsSeparatedByString:@": "];
-        NSString *key = [self eventFieldsDictionary][components[0]];
-        if (key) [event setValue:components[1] forKey:key];
+        NSRange range = [field rangeOfString:@": "];
+        if (range.location == NSNotFound) return;
+        NSString *key = [self eventFieldsDictionary][[field substringToIndex:range.location]];
+        if (key) [event setValue:[field substringFromIndex:range.location + range.length] forKey:key];
     }];
     return event;
 }
