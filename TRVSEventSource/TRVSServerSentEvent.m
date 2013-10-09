@@ -29,7 +29,7 @@
     return event;
 }
 
-+ (instancetype)eventFromData:(NSData *)data {
++ (instancetype)eventFromData:(NSData *)data error:(NSError *)error {
     TRVSServerSentEvent *event = [[self alloc] init];
     NSArray *fields = [self fieldsFromData:data];
     [fields enumerateObjectsUsingBlock:^(NSString *field, NSUInteger idx, BOOL *stop) {

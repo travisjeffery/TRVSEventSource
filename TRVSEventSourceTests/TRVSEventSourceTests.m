@@ -26,7 +26,7 @@
 
 - (void)testEventFromData {
     NSData *data = [@"event: kung fu\ndata: bill: bro: baggins" dataUsingEncoding:NSUTF8StringEncoding];
-    TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:data];
+    TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:data error:nil ];
 
     XCTAssertEqualObjects(@"kung fu", event.event);
     XCTAssertEqualObjects(@"bill: bro: baggins", event.dataString);

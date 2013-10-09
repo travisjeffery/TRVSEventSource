@@ -22,7 +22,7 @@
                          dataString:(NSString *)dataString
                         retry:(NSTimeInterval)retry;
 
-+ (instancetype)eventFromData:(NSData *)data;
++ (instancetype)eventFromData:(NSData *)data error:(NSError *)error;
 + (instancetype)eventWithFields:(NSDictionary *)fields;
 
 @end
