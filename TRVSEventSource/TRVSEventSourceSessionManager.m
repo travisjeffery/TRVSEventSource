@@ -7,7 +7,7 @@
 //
 
 #import "TRVSEventSourceSessionManager.h"
-#import "TRVSEvent.h"
+#import "TRVSServerSentEvent.h"
 
 NSString *const TRVSEventSourceErrorDomain = @"com.travisjeffery.TRVSEventSourceSessionManager";
 const NSInteger TRVSEventSourceErrorSourceClosed = 666;
@@ -36,7 +36,7 @@ const NSInteger TRVSEventSourceErrorSourceClosed = 666;
 #pragma mark - NSURLSessionDelegate
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    TRVSEvent *event = [TRVSEvent eventFromData:data];
+    TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:data];
     self.eventHandler(event, nil);
 }
 

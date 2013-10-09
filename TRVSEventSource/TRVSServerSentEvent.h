@@ -1,5 +1,5 @@
 //
-//  TRVSEvent.h
+//  TRVSServerSentEvent.h
 //  TRVSEventSource
 //
 //  Created by Travis Jeffery on 10/8/13.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface TRVSEvent : NSObject
+@interface TRVSServerSentEvent : NSObject
 
 @property (nonatomic, copy, readonly) NSString *type;
 @property (nonatomic, copy, readonly) NSString *ID;

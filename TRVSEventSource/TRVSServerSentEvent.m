@@ -1,14 +1,14 @@
 //
-//  TRVSEvent.m
+//  TRVSServerSentEvent.m
 //  TRVSEventSource
 //
 //  Created by Travis Jeffery on 10/8/13.
 //  Copyright (c) 2013 Travis Jeffery. All rights reserved.
 //
 
-#import "TRVSEvent.h"
+#import "TRVSServerSentEvent.h"
 
-@interface TRVSEvent ()
+@interface TRVSServerSentEvent ()
 
 @property (nonatomic, copy, readwrite) NSString *type;
 @property (nonatomic, copy, readwrite) NSString *ID;
@@ -18,10 +18,10 @@
 
 @end
 
-@implementation TRVSEvent
+@implementation TRVSServerSentEvent
 
 + (instancetype)eventWithType:(NSString *)type ID:(NSString *)ID dataString:(NSString *)dataString retry:(NSTimeInterval)retry {
-    TRVSEvent *event = [[self alloc] init];
+    TRVSServerSentEvent *event = [[self alloc] init];
     event.type = type;
     event.ID = ID;
     event.dataString = dataString;
@@ -30,7 +30,7 @@
 }
 
 + (instancetype)eventFromData:(NSData *)data {
-    TRVSEvent *event = [[self alloc] init];
+    TRVSServerSentEvent *event = [[self alloc] init];
     NSArray *fields = [self fieldsFromData:data];
     [fields enumerateObjectsUsingBlock:^(NSString *field, NSUInteger idx, BOOL *stop) {
         NSRange range = [field rangeOfString:@": "];

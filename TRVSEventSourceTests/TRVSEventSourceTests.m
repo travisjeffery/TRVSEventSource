@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "TRVSEvent.h"
+#import "TRVSServerSentEvent.h"
 
 @interface TRVSEventSourceTests : XCTestCase
 
@@ -17,7 +17,7 @@
 
 - (void)setUp {
     [super setUp];
- 
+
 }
 
 - (void)tearDown {
@@ -27,7 +27,7 @@
 - (void)testEventFromData {
     NSData *data = [@"event: kung fu\ndata: bill: bro: baggins" dataUsingEncoding:NSUTF8StringEncoding];
     TRVSEvent *event = [TRVSEvent eventFromData:data];
-    
+
     XCTAssertEqualObjects(@"kung fu", event.type);
     XCTAssertEqualObjects(@"bill: bro: baggins", event.dataString);
 }

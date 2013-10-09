@@ -7,14 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TRVSEvent.h"
+#import "TRVSServerSentEvent.h"
 
 extern NSString *const TRVSEventSourceErrorDomain;
 extern const NSInteger TRVSEventSourceErrorSourceClosed;
 
-@class TRVSEvent;
+@class TRVSServerSentEvent;
 
-typedef void (^TRVSDidReceiveEventHandler)(TRVSEvent *event, NSError *error);
+typedef void (^TRVSDidReceiveEventHandler)(TRVSServerSentEvent *event, NSError *error);
 
 @interface TRVSEventSourceSessionManager : NSObject <NSURLSessionDelegate, NSURLSessionDataDelegate>
 
