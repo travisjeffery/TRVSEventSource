@@ -22,7 +22,6 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 @property (nonatomic, strong, readonly) NSURL *URL;
 @property (nonatomic, strong, readonly) NSURLSession *URLSession;
 @property (nonatomic, strong, readonly) NSURLSessionTask *URLSessionTask;
-@property (nonatomic, copy, readonly) TRVSEventSourceEventHandler eventHandler;
 @property (nonatomic, weak) id<TRVSEventSourceDelegate> delegate;
 
 // @name connection state
@@ -38,7 +37,6 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 // @name opening and closing an event source
 
 - (BOOL)open:(NSError * __autoreleasing *)error;
-- (BOOL)close:(NSError * __autoreleasing *)error;
 
 // @name listening for events
 

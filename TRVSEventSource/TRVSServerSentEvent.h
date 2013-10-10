@@ -23,6 +23,5 @@
                         retry:(NSTimeInterval)retry;
 
 + (instancetype)eventFromData:(NSData *)data error:(NSError *)error;
-+ (instancetype)eventWithFields:(NSDictionary *)fields;
 
 @end
