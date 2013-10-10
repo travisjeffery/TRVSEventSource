@@ -92,16 +92,20 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 #pragma mark - NSURLSessionDelegate
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:data error:nil ];
-    self.eventHandler(event, nil);
+    TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:data error:nil];
+    [[self.listenersKeyedByEvent objectForKey:event.event] enumerateKeysAndObjectsUsingBlock:^(NSString *_, TRVSEventSourceEventHandler handler, BOOL *stop) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            handler(event, nil);
+        });        
+    }];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    self.eventHandler(nil, error);
+//    self.eventHandler(nil, error);
 }
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-    self.eventHandler(nil, error);
+//    self.eventHandler(nil, error);
 }
 
 #pragma mark - NSStreamDelegate
