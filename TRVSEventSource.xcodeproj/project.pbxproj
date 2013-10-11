@@ -19,6 +19,7 @@
 		3275255318047A3B00CF5D6F /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275255218047A3B00CF5D6F /* XCTest.framework */; };
 		3275255418047A3B00CF5D6F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253918047A3A00CF5D6F /* Foundation.framework */; };
 		3275255518047A3B00CF5D6F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253D18047A3A00CF5D6F /* UIKit.framework */; };
+		8E2A7500849A46C599C803C7 /* libPods-TRVSEventSourceTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EE7B1862C2C41A4B2C02344 /* libPods-TRVSEventSourceTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +33,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2EE7B1862C2C41A4B2C02344 /* libPods-TRVSEventSourceTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TRVSEventSourceTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		320012351804FED200C250EC /* TRVSServerSentEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSServerSentEvent.h; sourceTree = "<group>"; };
 		320012361804FED200C250EC /* TRVSServerSentEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRVSServerSentEvent.m; sourceTree = "<group>"; };
 		320012391804FED200C250EC /* TRVSEventSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSource.h; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 		3275255118047A3B00CF5D6F /* TRVSEventSourceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TRVSEventSourceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3275255218047A3B00CF5D6F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		32A659671805C5A30056F07A /* TRVSEventSourceDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSourceDelegate.h; sourceTree = "<group>"; };
+		E47AF9C2E3594C1A91850550 /* Pods-TRVSEventSourceTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TRVSEventSourceTests.xcconfig"; path = "Pods/Pods-TRVSEventSourceTests.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +76,7 @@
 				3275255318047A3B00CF5D6F /* XCTest.framework in Frameworks */,
 				3275255518047A3B00CF5D6F /* UIKit.framework in Frameworks */,
 				3275255418047A3B00CF5D6F /* Foundation.framework in Frameworks */,
+				8E2A7500849A46C599C803C7 /* libPods-TRVSEventSourceTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +127,7 @@
 				3229E069180525AF0059B929 /* TRVSEventSourceExample */,
 				3275253818047A3A00CF5D6F /* Frameworks */,
 				3275253718047A3A00CF5D6F /* Products */,
+				E47AF9C2E3594C1A91850550 /* Pods-TRVSEventSourceTests.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -142,6 +147,7 @@
 				3275253B18047A3A00CF5D6F /* CoreGraphics.framework */,
 				3275253D18047A3A00CF5D6F /* UIKit.framework */,
 				3275255218047A3B00CF5D6F /* XCTest.framework */,
+				2EE7B1862C2C41A4B2C02344 /* libPods-TRVSEventSourceTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -170,9 +176,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3275256518047A3B00CF5D6F /* Build configuration list for PBXNativeTarget "TRVSEventSourceTests" */;
 			buildPhases = (
+				4587E0DA8A754EF38652678C /* Check Pods Manifest.lock */,
 				3275254D18047A3B00CF5D6F /* Sources */,
 				3275254E18047A3B00CF5D6F /* Frameworks */,
 				3275254F18047A3B00CF5D6F /* Resources */,
+				E2EDB253A6B34C17A3B6E56E /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -195,7 +203,7 @@
 				ORGANIZATIONNAME = "Travis Jeffery";
 				TargetAttributes = {
 					3275255018047A3B00CF5D6F = {
-						TestTargetID = 3275253518047A3A00CF5D6F /* TRVSEventSource */;
+						TestTargetID = 3275253518047A3A00CF5D6F;
 					};
 				};
 			};
@@ -234,6 +242,39 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4587E0DA8A754EF38652678C /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		E2EDB253A6B34C17A3B6E56E /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-TRVSEventSourceTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3275253218047A3A00CF5D6F /* Sources */ = {
@@ -387,6 +428,7 @@
 		};
 		3275256618047A3B00CF5D6F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E47AF9C2E3594C1A91850550 /* Pods-TRVSEventSourceTests.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TRVSEventSource.app/TRVSEventSource";
@@ -410,6 +452,7 @@
 		};
 		3275256718047A3B00CF5D6F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E47AF9C2E3594C1A91850550 /* Pods-TRVSEventSourceTests.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TRVSEventSource.app/TRVSEventSource";

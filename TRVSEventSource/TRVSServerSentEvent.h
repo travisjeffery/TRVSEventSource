@@ -13,15 +13,9 @@
 @property (nonatomic, copy, readonly) NSString *event;
 @property (nonatomic, copy, readonly) NSString *identifier;
 @property (nonatomic, readonly) NSTimeInterval retry;
-@property (nonatomic, strong, readonly) NSData *data;
-@property (nonatomic, copy, readonly) NSString *dataString;
-@property (nonatomic, copy, readonly) NSDictionary *dataDictionary;
+@property (nonatomic, copy, readonly) NSData *data;
+@property (nonatomic, copy, readonly) NSDictionary *userInfo;
 
-+ (instancetype)eventWithType:(NSString *)type
-                           ID:(NSString *)ID
-                         dataString:(NSString *)dataString
-                        retry:(NSTimeInterval)retry;
-
-+ (instancetype)eventFromData:(NSData *)data error:(NSError *)error;
++ (instancetype)eventWithFields:(NSDictionary *)fields;
 
 @end

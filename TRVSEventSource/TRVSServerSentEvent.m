@@ -13,53 +13,30 @@
 @property (nonatomic, copy, readwrite) NSString *event;
 @property (nonatomic, copy, readwrite) NSString *identifier;
 @property (nonatomic, readwrite) NSTimeInterval retry;
-@property (nonatomic, copy, readwrite) NSString *dataString;
-@property (nonatomic, copy, readwrite) NSDictionary *dataDictionary;
+@property (nonatomic, copy, readwrite) NSData *data;
+@property (nonatomic, copy, readwrite) NSDictionary *userInfo;
 
 @end
 
 @implementation TRVSServerSentEvent
 
-+ (instancetype)eventWithType:(NSString *)type ID:(NSString *)ID dataString:(NSString *)dataString retry:(NSTimeInterval)retry {
++ (instancetype)eventWithFields:(NSDictionary *)fields {
+    if (!fields) {
+        return nil;
+    }
+    
     TRVSServerSentEvent *event = [[self alloc] init];
-    event.event = type;
-    event.identifier = ID;
-    event.dataString = dataString;
-    event.retry = retry;
+    
+    NSMutableDictionary *mutableFields = [NSMutableDictionary dictionaryWithDictionary:fields];
+    event.event = mutableFields[@"event"];
+    event.identifier = mutableFields[@"id"];
+    event.data = [mutableFields[@"data"] dataUsingEncoding:NSUTF8StringEncoding];
+    event.retry = [mutableFields[@"retry"] integerValue];
+    
+    [mutableFields removeObjectsForKeys:@[@"event", @"id", @"data", @"retry"]];
+    event.userInfo = mutableFields;
+    
     return event;
-}
-
-+ (instancetype)eventFromData:(NSData *)data error:(NSError *)error {
-    TRVSServerSentEvent *event = [[self alloc] init];
-    NSArray *fields = [self fieldsFromData:data];
-    [fields enumerateObjectsUsingBlock:^(NSString *field, NSUInteger idx, BOOL *stop) {
-        NSRange range = [field rangeOfString:@": "];
-        if (range.location == NSNotFound) return;
-        NSString *key = [self eventFieldsDictionary][[field substringToIndex:range.location]];
-        if (key) [event setValue:[field substringFromIndex:range.location + range.length] forKey:key];
-    }];
-    return event;
-}
-
-+ (NSArray *)fieldsFromData:(NSData *)data {
-    NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    dataString = [dataString stringByReplacingOccurrencesOfString:@"\n\n" withString:@""];
-    NSArray *fields = [dataString componentsSeparatedByString:@"\n"];
-    return fields;
-}
-
-+ (NSDictionary *)eventFieldsDictionary {
-    return @{
-         @"event": @"event",
-         @"id": @"ID",
-         @"data": @"dataString"
-     };
-}
-
-- (NSDictionary *)dataDictionary {
-    if (_dataDictionary) return _dataDictionary;
-    _dataDictionary = [NSJSONSerialization JSONObjectWithData:[self.dataString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:NULL];
-    return _dataDictionary;
 }
 
 @end

@@ -13,6 +13,41 @@ NSString *const TRVSEventSourceErrorDomain = @"com.travisjeffery.TRVSEventSource
 const NSInteger TRVSEventSourceErrorSourceClosed = 666;
 static NSUInteger const TRVSEventSourceListenersCapacity = 100;
 
+static NSDictionary *TRVSServerSentEventFieldsFromData(NSData *data, NSError * __autoreleasing *error) {
+    if (!data || [data length] == 0) {
+        return nil;
+    }
+    
+    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSMutableDictionary *mutableFields = [NSMutableDictionary dictionary];
+    
+    for (NSString *line in [string componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]]) {
+        // Ignore nil or blank lines, as well as lines beginning with a colon
+        if (!line || [line length] == 0 || [line hasPrefix:@":"]) {
+            continue;
+        }
+        
+        @autoreleasepool {
+            NSScanner *scanner = [[NSScanner alloc] initWithString:line];
+            scanner.charactersToBeSkipped = [NSCharacterSet whitespaceCharacterSet];
+            NSString *key, *value;
+            [scanner scanUpToString:@":" intoString:&key];
+            [scanner scanString:@":" intoString:nil];
+            [scanner scanUpToString:@"\n" intoString:&value];
+            
+            if (key && value) {
+                if (mutableFields[key]) {
+                    mutableFields[key] = [mutableFields[key] stringByAppendingFormat:@"\n%@", value];
+                } else {
+                    mutableFields[key] = value;
+                }
+            }
+        }
+    }
+    
+    return mutableFields;
+}
+
 typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     TRVSEventSourceConnecting = 0,
     TRVSEventSourceOpen = 1,
@@ -20,6 +55,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 };
 
 @interface TRVSEventSource () <NSStreamDelegate>
+@property (nonatomic, strong, readwrite) NSOperationQueue *operationQueue;
 @property (nonatomic, strong, readwrite) NSURL *URL;
 @property (nonatomic, strong, readwrite) NSURLSession *URLSession;
 @property (nonatomic, strong, readwrite) NSURLSessionTask *URLSessionTask;
@@ -34,10 +70,12 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 - (instancetype)initWithURL:(NSURL *)URL {
     self = [self init];
     if (!self) return nil;
+    self.operationQueue = [[NSOperationQueue alloc] init];
+    self.operationQueue.name = @"com.travisjeffery.TRVSEventSource";
     self.URL = URL;
     self.listenersKeyedByEvent = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsCopyIn valueOptions:NSPointerFunctionsStrongMemory capacity:TRVSEventSourceListenersCapacity];
     self.URLSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
-                                                    delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+                                                    delegate:self delegateQueue:self.operationQueue];
     NSError *error = nil;
     [self open:&error];
     if (error) {
@@ -62,6 +100,14 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
     self.state = TRVSEventSourceOpen;
 
+    return YES;
+}
+
+- (BOOL)close:(NSError *__autoreleasing *)error {
+    [self.URLSession finishTasksAndInvalidate];
+    if (self.outputStream.streamStatus != NSStreamStatusClosed) [self.outputStream close];
+    self.state = TRVSEventSourceClosed;
+    if ([self.delegate respondsToSelector:@selector(eventSourceDidClose:)]) [self.delegate eventSourceDidClose:self];    
     return YES;
 }
 
@@ -115,14 +161,6 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     }
 }
 
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    [self.outputStream close];
-}
-
-- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-    [self.outputStream close];
-}
-
 #pragma mark - NSStreamDelegate
 
 - (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode {
@@ -130,7 +168,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
         case NSStreamEventHasSpaceAvailable: {
             NSData *data = [stream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
             NSError *error = nil;
-            TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:[data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)] error:error];
+            TRVSServerSentEvent *event = [TRVSServerSentEvent eventWithFields:TRVSServerSentEventFieldsFromData([data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)], &error)];
             self.offset = [data length];
             
             if (error) {

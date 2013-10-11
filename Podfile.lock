@@ -1,0 +1,14 @@
+PODS:
+  - TRVSTestManager (0.0.1)
+
+DEPENDENCIES:
+  - TRVSTestManager (from `~/hacks/TRVSTestManager`)
+
+EXTERNAL SOURCES:
+  TRVSTestManager:
+    :path: ~/hacks/TRVSTestManager
+
+SPEC CHECKSUMS:
+  TRVSTestManager: d7c59ba6b2d108bf78d1d0a48262fdbb3e1b6493
+
+COCOAPODS: 0.25.0
