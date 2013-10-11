@@ -56,6 +56,8 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     self.URLSessionTask = [self.URLSession dataTaskWithURL:self.URL];
     self.outputStream = [NSOutputStream outputStreamToMemory];
     self.outputStream.delegate = self;
+     [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.outputStream open];
     [self.URLSessionTask resume];
 
     self.state = TRVSEventSourceOpen;
@@ -92,20 +94,33 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 #pragma mark - NSURLSessionDelegate
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:data error:nil];
-    [[self.listenersKeyedByEvent objectForKey:event.event] enumerateKeysAndObjectsUsingBlock:^(NSString *_, TRVSEventSourceEventHandler handler, BOOL *stop) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            handler(event, nil);
-        });        
-    }];
+    NSUInteger length = data.length;
+    while (YES) {
+        NSInteger totalNumberOfBytesWritten = 0;
+        if (self.outputStream.hasSpaceAvailable) {
+            const uint8_t *dataBuffer = (uint8_t *)[data bytes];
+            
+            NSInteger numberOfBytesWritten = 0;
+            while (totalNumberOfBytesWritten < (NSInteger)length) {
+                numberOfBytesWritten = [self.outputStream write:&dataBuffer[0] maxLength:length];
+                if (numberOfBytesWritten == -1) {
+                    return;
+                } else {
+                    totalNumberOfBytesWritten += numberOfBytesWritten;
+                }
+            }
+            
+            break;
+        }
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-//    self.eventHandler(nil, error);
+    [self.outputStream close];
 }
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-//    self.eventHandler(nil, error);
+    [self.outputStream close];
 }
 
 #pragma mark - NSStreamDelegate
@@ -117,7 +132,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
             NSError *error = nil;
             TRVSServerSentEvent *event = [TRVSServerSentEvent eventFromData:[data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)] error:error];
             self.offset = [data length];
-
+            
             if (error) {
                 if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
                     [self.delegate eventSource:self didFailWithError:error];
@@ -129,7 +144,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
                         [self.delegate eventSource:self didReceiveEvent:event];
                     }
 
-                    [[self.listenersKeyedByEvent objectForKey:event.event] enumerateObjectsUsingBlock:^(TRVSEventSourceEventHandler eventHandler, NSUInteger idx, BOOL *stop) {
+                    [[self.listenersKeyedByEvent objectForKey:event.event] enumerateKeysAndObjectsUsingBlock:^(id _, TRVSEventSourceEventHandler eventHandler, BOOL *stop) {
                         eventHandler(event, nil);
                     }];
                 }
