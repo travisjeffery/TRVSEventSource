@@ -1,15 +1,15 @@
 PODS:
-  - TRVSTestManager (0.0.1)
+  - TRVSMonitor (0.0.1)
 
 DEPENDENCIES:
-  - TRVSTestManager (from `https://github.com/travisjeffery/TRVSTestManager.git`, branch `master`)
+  - TRVSMonitor (from `https://github.com/travisjeffery/TRVSMonitor.git`, branch `master`)
 
 EXTERNAL SOURCES:
-  TRVSTestManager:
+  TRVSMonitor:
     :branch: master
-    :git: https://github.com/travisjeffery/TRVSTestManager.git
+    :git: https://github.com/travisjeffery/TRVSMonitor.git
 
 SPEC CHECKSUMS:
-  TRVSTestManager: d7c59ba6b2d108bf78d1d0a48262fdbb3e1b6493
+  TRVSMonitor: 97dec7f4ff10a16ed75245562ec880160f436c6e
 
 COCOAPODS: 0.25.0
