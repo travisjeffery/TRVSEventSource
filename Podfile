@@ -6,6 +6,6 @@ target "TRVSEventSource" do
 end
 
 target "TRVSEventSourceTests" do
-  pod 'TRVSTestManager', :path => '~/hacks/TRVSTestManager'
+  pod 'TRVSTestManager', :git => 'https://github.com/travisjeffery/TRVSTestManager.git', :branch => 'master'
 end
 
