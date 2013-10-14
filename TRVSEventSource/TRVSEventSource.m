@@ -9,24 +9,22 @@
 #import "TRVSEventSource.h"
 #import "TRVSServerSentEvent.h"
 
+
 NSString *const TRVSEventSourceErrorDomain = @"com.travisjeffery.TRVSEventSource";
 const NSInteger TRVSEventSourceErrorSourceClosed = 666;
 static NSUInteger const TRVSEventSourceListenersCapacity = 100;
+static char *const TRVSEventSourceSyncQueueLabel = "com.travisjeffery.TRVSEventSource.syncQueue";
+static NSString *const TRVSEventSourceOperationQueueName = @"com.travisjeffery.TRVSEventSource.operationQueue";
 
 static NSDictionary *TRVSServerSentEventFieldsFromData(NSData *data, NSError * __autoreleasing *error) {
-    if (!data || [data length] == 0) {
-        return nil;
-    }
-    
+    if (!data || [data length] == 0) return nil;
+
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSMutableDictionary *mutableFields = [NSMutableDictionary dictionary];
-    
+
     for (NSString *line in [string componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]]) {
-        // Ignore nil or blank lines, as well as lines beginning with a colon
-        if (!line || [line length] == 0 || [line hasPrefix:@":"]) {
-            continue;
-        }
-        
+        if (!line || [line length] == 0 || [line hasPrefix:@":"]) continue;
+
         @autoreleasepool {
             NSScanner *scanner = [[NSScanner alloc] initWithString:line];
             scanner.charactersToBeSkipped = [NSCharacterSet whitespaceCharacterSet];
@@ -34,7 +32,7 @@ static NSDictionary *TRVSServerSentEventFieldsFromData(NSData *data, NSError * _
             [scanner scanUpToString:@":" intoString:&key];
             [scanner scanString:@":" intoString:nil];
             [scanner scanUpToString:@"\n" intoString:&value];
-            
+
             if (key && value) {
                 if (mutableFields[key]) {
                     mutableFields[key] = [mutableFields[key] stringByAppendingFormat:@"\n%@", value];
@@ -44,7 +42,7 @@ static NSDictionary *TRVSServerSentEventFieldsFromData(NSData *data, NSError * _
             }
         }
     }
-    
+
     return mutableFields;
 }
 
@@ -56,26 +54,29 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 @interface TRVSEventSource () <NSStreamDelegate>
 @property (nonatomic, strong, readwrite) NSOperationQueue *operationQueue;
+@property (nonatomic, readwrite) dispatch_queue_t syncQueue;
 @property (nonatomic, strong, readwrite) NSURL *URL;
 @property (nonatomic, strong, readwrite) NSURLSession *URLSession;
 @property (nonatomic, strong, readwrite) NSURLSessionTask *URLSessionTask;
-@property (nonatomic) TRVSEventSourceState state;
-@property (nonatomic, strong) NSMapTable *listenersKeyedByEvent;
-@property (nonatomic, strong) NSOutputStream *outputStream;
-@property (nonatomic) NSUInteger offset;
+@property (nonatomic, readwrite) TRVSEventSourceState state;
+@property (nonatomic, strong, readwrite) NSMapTable *listenersKeyedByEvent;
+@property (nonatomic, strong, readwrite) NSOutputStream *outputStream;
+@property (nonatomic, readwrite) NSUInteger offset;
 @end
 
 @implementation TRVSEventSource
 
 - (instancetype)initWithURL:(NSURL *)URL {
-    self = [self init];
-    if (!self) return nil;
+    if (!(self = [super init])) return nil;
+
     self.operationQueue = [[NSOperationQueue alloc] init];
-    self.operationQueue.name = @"com.travisjeffery.TRVSEventSource";
+    self.operationQueue.name = TRVSEventSourceOperationQueueName;
     self.URL = URL;
     self.listenersKeyedByEvent = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsCopyIn valueOptions:NSPointerFunctionsStrongMemory capacity:TRVSEventSourceListenersCapacity];
     self.URLSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                     delegate:self delegateQueue:self.operationQueue];
+    self.syncQueue = dispatch_queue_create(TRVSEventSourceSyncQueueLabel, NULL);
+
     NSError *error = nil;
     [self open:&error];
     if (error) {
@@ -89,33 +90,46 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 - (BOOL)open:(NSError * __autoreleasing *)error {
     if ([self isOpen]) return YES;
 
-    self.state = TRVSEventSourceConnecting;
+    __weak typeof(self) weakSelf = self;
+    dispatch_sync(self.syncQueue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
 
-    self.URLSessionTask = [self.URLSession dataTaskWithURL:self.URL];
-    self.outputStream = [NSOutputStream outputStreamToMemory];
-    self.outputStream.delegate = self;
-     [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [self.outputStream open];
-    [self.URLSessionTask resume];
+        strongSelf.state = TRVSEventSourceConnecting;
 
-    self.state = TRVSEventSourceOpen;
+        strongSelf.outputStream = [NSOutputStream outputStreamToMemory];
+        strongSelf.outputStream.delegate = strongSelf;
+        [strongSelf.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [strongSelf.outputStream open];
+
+        strongSelf.URLSessionTask = [strongSelf.URLSession dataTaskWithURL:strongSelf.URL];
+        [strongSelf.URLSessionTask resume];
+
+        strongSelf.state = TRVSEventSourceOpen;
+    });
 
     return YES;
 }
 
 - (BOOL)close:(NSError *__autoreleasing *)error {
-    [self.URLSession finishTasksAndInvalidate];
-    if (self.outputStream.streamStatus != NSStreamStatusClosed) [self.outputStream close];
-    self.state = TRVSEventSourceClosed;
-    if ([self.delegate respondsToSelector:@selector(eventSourceDidClose:)]) [self.delegate eventSourceDidClose:self];    
+    if (self.isClosed) return YES;
+
+    __weak typeof(self) weakSelf = self;
+    dispatch_sync(self.syncQueue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+
+        [strongSelf.URLSession finishTasksAndInvalidate];
+        if (strongSelf.outputStream.streamStatus != NSStreamStatusClosed) [strongSelf.outputStream close];
+        if ([strongSelf.delegate respondsToSelector:@selector(eventSourceDidClose:)]) [strongSelf.delegate eventSourceDidClose:strongSelf];
+
+        strongSelf.state = TRVSEventSourceClosed;
+    });
+
     return YES;
 }
 
 - (NSUInteger)addListenerForEvent:(NSString *)event usingEventHandler:(TRVSEventSourceEventHandler)eventHandler {
     NSMutableDictionary *mutableListenersKeyedByIdentifier = [self.listenersKeyedByEvent objectForKey:event];
-    if (!mutableListenersKeyedByIdentifier) {
-        mutableListenersKeyedByIdentifier = [NSMutableDictionary dictionary];
-    }
+    if (!mutableListenersKeyedByIdentifier) mutableListenersKeyedByIdentifier = [NSMutableDictionary dictionary];
 
     NSUInteger identifier = [[NSUUID UUID] hash];
     mutableListenersKeyedByIdentifier[@(identifier)] = [eventHandler copy];
@@ -145,7 +159,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
         NSInteger totalNumberOfBytesWritten = 0;
         if (self.outputStream.hasSpaceAvailable) {
             const uint8_t *dataBuffer = (uint8_t *)[data bytes];
-            
+
             NSInteger numberOfBytesWritten = 0;
             while (totalNumberOfBytesWritten < (NSInteger)length) {
                 numberOfBytesWritten = [self.outputStream write:&dataBuffer[0] maxLength:length];
@@ -155,7 +169,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
                     totalNumberOfBytesWritten += numberOfBytesWritten;
                 }
             }
-            
+
             break;
         }
     }
@@ -170,7 +184,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
             NSError *error = nil;
             TRVSServerSentEvent *event = [TRVSServerSentEvent eventWithFields:TRVSServerSentEventFieldsFromData([data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)], &error)];
             self.offset = [data length];
-            
+
             if (error) {
                 if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
                     [self.delegate eventSource:self didFailWithError:error];
@@ -186,6 +200,12 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
                         eventHandler(event, nil);
                     }];
                 }
+            }
+            break;
+        }
+        case NSStreamEventErrorOccurred: {
+            if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
+                [self.delegate eventSource:self didFailWithError:self.outputStream.streamError];
             }
             break;
         }
