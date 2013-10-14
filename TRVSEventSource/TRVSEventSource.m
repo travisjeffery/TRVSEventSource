@@ -88,7 +88,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 }
 
 - (BOOL)open:(NSError * __autoreleasing *)error {
-    if ([self isOpen]) return YES;
+    if (self.isOpen) return YES;
 
     __weak typeof(self) weakSelf = self;
     dispatch_sync(self.syncQueue, ^{

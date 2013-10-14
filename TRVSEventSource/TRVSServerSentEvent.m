@@ -21,9 +21,7 @@
 @implementation TRVSServerSentEvent
 
 + (instancetype)eventWithFields:(NSDictionary *)fields {
-    if (!fields) {
-        return nil;
-    }
+    if (!fields) return nil;
     
     TRVSServerSentEvent *event = [[self alloc] init];
     
