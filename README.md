@@ -1,6 +1,19 @@
 # TRVSEventSource
 
-Server-sent events EventSource API client library. 
+Server-sent events EventSource implementation in ObjC for iOS and OS X using NSURLSession.
+
+## Usage
+
+``` objc
+TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:URL];
+
+[eventSource addListenerForEvent:@"message" usingEventHandler:^(TRVSServerSentEvent *event, NSError *error) {  
+    Message *message = [Message messageWithJSON:event.userInfo];
+}];
+
+NSError *error = nil;
+[eventSource open:&error];
+```
 
 ## Local test server
 
