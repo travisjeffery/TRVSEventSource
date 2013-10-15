@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "TRVSEventSource"
   s.version      = "0.0.1"
-  s.summary      = "Server-sent events EventSource client using NSURLSession"
+  s.summary      = "Server-sent events EventSource implementation in ObjC for iOS and OS X using NSURLSession."
   s.homepage     = "https://github.com/travisjeffery/TRVSEventSource"
   s.license      = { :type => 'MIT', :file => 'LICENSE.md' }
   s.author       = { "Travis Jeffery" => "tj@travisjeffery.com" }
