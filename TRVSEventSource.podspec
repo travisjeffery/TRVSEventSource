@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   s.version      = "0.0.1"
   s.summary      = "Server-sent events EventSource client using NSURLSession"
   s.homepage     = "https://github.com/travisjeffery/TRVSEventSource"
-  s.license      = 'MIT'
+  s.license      = { :type => 'MIT', :file => 'LICENSE.md' }
   s.author       = { "Travis Jeffery" => "tj@travisjeffery.com" }
   s.ios.deployment_target = '7.0'
   s.osx.deployment_target = '10.9'
