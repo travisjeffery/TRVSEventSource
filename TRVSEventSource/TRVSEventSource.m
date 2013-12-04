@@ -104,6 +104,10 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
         strongSelf.URLSessionTask = [strongSelf.URLSession dataTaskWithURL:strongSelf.URL];
         [strongSelf.URLSessionTask resume];
 
+        if ([strongSelf.delegate respondsToSelector:@selector(eventSourceDidOpen:)]) {
+            [strongSelf.delegate eventSourceDidOpen:strongSelf];
+        }
+
         strongSelf.state = TRVSEventSourceOpen;
     });
 
