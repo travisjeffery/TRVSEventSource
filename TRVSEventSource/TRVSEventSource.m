@@ -68,7 +68,6 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (instancetype)initWithURL:(NSURL *)URL {
     if (!(self = [super init])) return nil;
-
     self.operationQueue = [[NSOperationQueue alloc] init];
     self.operationQueue.name = TRVSEventSourceOperationQueueName;
     self.URL = URL;
@@ -76,14 +75,6 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     self.URLSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                     delegate:self delegateQueue:self.operationQueue];
     self.syncQueue = dispatch_queue_create(TRVSEventSourceSyncQueueLabel, NULL);
-
-    NSError *error = nil;
-    [self open:&error];
-    if (error) {
-        if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
-            [self.delegate eventSource:self didFailWithError:error];
-        }
-    }
     return self;
 }
 
