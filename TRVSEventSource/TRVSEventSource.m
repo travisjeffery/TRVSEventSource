@@ -95,11 +95,11 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
         strongSelf.URLSessionTask = [strongSelf.URLSession dataTaskWithURL:strongSelf.URL];
         [strongSelf.URLSessionTask resume];
         
+        strongSelf.state = TRVSEventSourceOpen;
+
         if ([strongSelf.delegate respondsToSelector:@selector(eventSourceDidOpen:)]) {
             [strongSelf.delegate eventSourceDidOpen:strongSelf];
         }
-        
-        strongSelf.state = TRVSEventSourceOpen;
     });
     
     return YES;
@@ -115,8 +115,12 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
         strongSelf.outputStream.delegate = nil;
         [strongSelf.outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
         [strongSelf.outputStream close];
-        if ([strongSelf.delegate respondsToSelector:@selector(eventSourceDidClose:)]) [strongSelf.delegate eventSourceDidClose:strongSelf];
+
         strongSelf.state = TRVSEventSourceClosed;
+
+        if ([strongSelf.delegate respondsToSelector:@selector(eventSourceDidClose:)]) {
+            [strongSelf.delegate eventSourceDidClose:strongSelf];
+        }
     });
     
     return YES;
