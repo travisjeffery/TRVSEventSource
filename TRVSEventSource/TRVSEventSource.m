@@ -174,6 +174,12 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     }
 }
 
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
+    if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
+        [self.delegate eventSource:self didFailWithError:error];
+    }
+}
+
 #pragma mark - NSStreamDelegate
 
 - (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode {
