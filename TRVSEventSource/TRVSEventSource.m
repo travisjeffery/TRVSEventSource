@@ -48,9 +48,10 @@ static NSDictionary *TRVSServerSentEventFieldsFromData(NSData *data, NSError * _
 
 typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     TRVSEventSourceConnecting = 0,
-    TRVSEventSourceOpen = 1,
-    TRVSEventSourceClosed = 2,
-    TRVSEventSourceClosing = 3
+    TRVSEventSourceOpen,
+    TRVSEventSourceClosed,
+    TRVSEventSourceClosing,
+    TRVSEventSourceFailed
 };
 
 @interface TRVSEventSource () <NSStreamDelegate>
@@ -81,23 +82,14 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 - (void)open {
     __weak typeof(self) weakSelf = self;
     dispatch_sync(self.syncQueue, ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        
-        strongSelf.state = TRVSEventSourceConnecting;
-        [strongSelf setupOutputStream];
-        
-        strongSelf.URLSessionTask = [strongSelf.URLSession dataTaskWithURL:strongSelf.URL];
-        [strongSelf.URLSessionTask resume];
+        [weakSelf transitionToConnecting];
     });
 }
 
 - (void)close {
     __weak typeof(self) weakSelf = self;
     dispatch_sync(self.syncQueue, ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.state = TRVSEventSourceClosing;
-        [strongSelf closeOutputStream];
-        [strongSelf.URLSession invalidateAndCancel];
+        [weakSelf transitionToClosing];
     });
 }
 
@@ -157,16 +149,15 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
     completionHandler(NSURLSessionResponseAllow);
-    [self openIfNecessary];
+    [self transitionToOpenIfNeeded];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     if (self.isClosing && error.code == NSURLErrorCancelled) {
-        self.state = TRVSEventSourceClosed;
-        [self delegateClose];
+        [self transitionToClosed];
     }
     else {
-        [self delegateFailWithError:error];
+        [self transitionToFailedWithError:error];
     }
 }
 
@@ -181,7 +172,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
             self.offset = [data length];
             
             if (error) {
-                [self delegateFailWithError:error];
+                [self transitionToFailedWithError:error];
             }
             else {
                 if (event) {
@@ -197,7 +188,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
             break;
         }
         case NSStreamEventErrorOccurred: {
-            [self delegateFailWithError:self.outputStream.streamError];
+            [self transitionToFailedWithError:self.outputStream.streamError];
             break;
         }
         default: break;
@@ -205,14 +196,6 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 }
 
 #pragma mark - Private
-
-- (void)openIfNecessary {
-    if (self.state != TRVSEventSourceConnecting) return;
-    self.state = TRVSEventSourceOpen;
-    if ([self.delegate respondsToSelector:@selector(eventSourceDidOpen:)]) {
-        [self.delegate eventSourceDidOpen:self];
-    }
-}
 
 - (void)setupOutputStream {
     self.outputStream = [NSOutputStream outputStreamToMemory];
@@ -227,16 +210,39 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     [self.outputStream close];
 }
 
-- (void)delegateFailWithError:(NSError *)error {
+- (void)transitionToOpenIfNeeded {
+    if (self.state != TRVSEventSourceConnecting) return;
+    self.state = TRVSEventSourceOpen;
+    if ([self.delegate respondsToSelector:@selector(eventSourceDidOpen:)]) {
+        [self.delegate eventSourceDidOpen:self];
+    }
+}
+
+- (void)transitionToFailedWithError:(NSError *)error {
+    self.state = TRVSEventSourceFailed;
     if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
         [self.delegate eventSource:self didFailWithError:error];
     }
 }
 
-- (void)delegateClose {
+- (void)transitionToClosed {
+    self.state = TRVSEventSourceClosed;
     if ([self.delegate respondsToSelector:@selector(eventSourceDidClose:)]) {
         [self.delegate eventSourceDidClose:self];
     }
+}
+
+- (void)transitionToConnecting {
+    self.state = TRVSEventSourceConnecting;
+    [self setupOutputStream];
+    self.URLSessionTask = [self.URLSession dataTaskWithURL:self.URL];
+    [self.URLSessionTask resume];
+}
+
+- (void)transitionToClosing {
+    self.state = TRVSEventSourceClosing;
+    [self closeOutputStream];
+    [self.URLSession invalidateAndCancel];
 }
 
 @end
