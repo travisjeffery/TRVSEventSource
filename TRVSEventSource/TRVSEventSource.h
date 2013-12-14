@@ -27,9 +27,10 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 
 // @name connection state
 
-@property (nonatomic, getter=isConnecting) BOOL connecting;
-@property (nonatomic, getter=isOpen) BOOL open;
-@property (nonatomic, getter=isClosed) BOOL closed;
+- (BOOL)isConnecting;
+- (BOOL)isOpen;
+- (BOOL)isClosed;
+- (BOOL)isClosing;
 
 // @name initializing an event source
 
@@ -37,8 +38,8 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 
 // @name opening and closing an event source
 
-- (BOOL)open:(NSError * __autoreleasing *)error;
-- (BOOL)close:(NSError * __autoreleasing *)error;
+- (void)open;
+- (void)close;
 
 // @name listening for events
 
