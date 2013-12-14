@@ -1,7 +1,9 @@
 PODS:
+  - OCMock (2.2.1)
   - TRVSMonitor (0.0.1)
 
 DEPENDENCIES:
+  - OCMock (= 2.2.1)
   - TRVSMonitor (from `https://github.com/travisjeffery/TRVSMonitor.git`, branch `master`)
 
 EXTERNAL SOURCES:
@@ -10,6 +12,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/travisjeffery/TRVSMonitor.git
 
 SPEC CHECKSUMS:
+  OCMock: 80e4cfbc71a0e1bd28caf10a9fda27da7c4c8402
   TRVSMonitor: 97dec7f4ff10a16ed75245562ec880160f436c6e
 
-COCOAPODS: 0.25.0
+COCOAPODS: 0.28.0
