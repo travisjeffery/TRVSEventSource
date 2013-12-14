@@ -79,6 +79,7 @@
     }] eventSourceDidOpen:eventSource];
     
     [eventSource open];
+    XCTAssert(eventSource.isConnecting);
     
     XCTAssert([monitor wait]);
     [delegate verify];
@@ -95,6 +96,7 @@
         __strong typeof(weakEventSource) strongEventSource = weakEventSource;
         [[delegate expect] eventSource:strongEventSource didReceiveEvent:[OCMArg any]];
         [strongEventSource close];
+        XCTAssert(strongEventSource.isClosing);
         [monitor signal];
     }];
     
