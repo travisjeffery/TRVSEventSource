@@ -6,14 +6,14 @@ Server-sent events EventSource implementation in ObjC for iOS and OS X using NSU
 
 ``` objc
 TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:URL];
+eventSource.delegate = self;
 
 [eventSource addListenerForEvent:@"message" usingEventHandler:^(TRVSServerSentEvent *event, NSError *error) {
     NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:event.data options:0 error:NULL];
     Message *message = [Message messageWithJSON:JSON];
 }];
 
-NSError *error = nil;
-[eventSource open:&error];
+[eventSource open];
 ```
 
 ## Local test server
