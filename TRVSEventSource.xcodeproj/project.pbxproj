@@ -21,6 +21,7 @@
 		3275255318047A3B00CF5D6F /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275255218047A3B00CF5D6F /* XCTest.framework */; };
 		3275255418047A3B00CF5D6F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253918047A3A00CF5D6F /* Foundation.framework */; };
 		3275255518047A3B00CF5D6F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3275253D18047A3A00CF5D6F /* UIKit.framework */; };
+		32C5223C1861F074002DD729 /* TRVSEventSourceTestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C5223B1861F074002DD729 /* TRVSEventSourceTestDelegate.m */; };
 		8E2A7500849A46C599C803C7 /* libPods-TRVSEventSourceTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EE7B1862C2C41A4B2C02344 /* libPods-TRVSEventSourceTests.a */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +58,8 @@
 		3275255118047A3B00CF5D6F /* TRVSEventSourceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TRVSEventSourceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3275255218047A3B00CF5D6F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		32A659671805C5A30056F07A /* TRVSEventSourceDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSourceDelegate.h; sourceTree = "<group>"; };
+		32C5223A1861F074002DD729 /* TRVSEventSourceTestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRVSEventSourceTestDelegate.h; sourceTree = "<group>"; };
+		32C5223B1861F074002DD729 /* TRVSEventSourceTestDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRVSEventSourceTestDelegate.m; sourceTree = "<group>"; };
 		E47AF9C2E3594C1A91850550 /* Pods-TRVSEventSourceTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TRVSEventSourceTests.xcconfig"; path = "Pods/Pods-TRVSEventSourceTests.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,6 +106,8 @@
 				3200123C1804FED200C250EC /* InfoPlist.strings */,
 				3200123E1804FED200C250EC /* TRVSEventSourceTests.m */,
 				3200123F1804FED200C250EC /* TRVSEventSourceTests-Info.plist */,
+				32C5223A1861F074002DD729 /* TRVSEventSourceTestDelegate.h */,
+				32C5223B1861F074002DD729 /* TRVSEventSourceTestDelegate.m */,
 			);
 			path = TRVSEventSourceTests;
 			sourceTree = "<group>";
@@ -295,6 +300,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32057795180C94910069B858 /* TRVSServerSentEvent.m in Sources */,
+				32C5223C1861F074002DD729 /* TRVSEventSourceTestDelegate.m in Sources */,
 				32057794180C94890069B858 /* TRVSEventSource.m in Sources */,
 				3200124C1804FFF200C250EC /* TRVSEventSourceTests.m in Sources */,
 			);
