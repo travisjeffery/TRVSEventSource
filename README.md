@@ -20,7 +20,7 @@ eventSource.delegate = self;
 
 Run the following to have a local server streaming events named `message`:
 
-`node ./TRVSEventSourceTests/server.js`
+`node TRVSEventSourceTests/server.js`
 
 ```
 ❯ curl 127.0.0.1:8000
