@@ -1,3 +1,8 @@
+0.0.7: dec 20 2013
+
+- made the event source and server sent events conform to nscopying, nscoding
+- able to remove event handlers from the event source
+
 0.0.6: dec 14 2013
 
 - set internal state and make delegate calls in reponse to url session
