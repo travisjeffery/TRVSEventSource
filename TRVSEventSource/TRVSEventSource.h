@@ -7,11 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TRVSServerSentEvent.h"
 #import "TRVSEventSourceDelegate.h"
-
-extern NSString *const TRVSEventSourceErrorDomain;
-extern const NSInteger TRVSEventSourceErrorSourceClosed;
+#import "TRVSServerSentEvent.h"
 
 @class TRVSServerSentEvent;
 
@@ -19,10 +16,15 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 
 @interface TRVSEventSource : NSObject <NSURLSessionDelegate, NSURLSessionDataDelegate>
 
+// The URL that the event source receives events from.
 @property (nonatomic, strong, readonly) NSURL *URL;
-@property (nonatomic, strong, readonly) NSOperationQueue *operationQueue;
+// The managed session.
 @property (nonatomic, strong, readonly) NSURLSession *URLSession;
+// The task used to connect to the URL and receive event data.
 @property (nonatomic, strong, readonly) NSURLSessionTask *URLSessionTask;
+// The operation queue on which delegate callbacks are run.
+@property (nonatomic, strong, readonly) NSOperationQueue *operationQueue;
+// The delegate you're using that's responsible for what to do when the event source state changes or receives events.
 @property (nonatomic, weak) id<TRVSEventSourceDelegate> delegate;
 
 // @name connection state
