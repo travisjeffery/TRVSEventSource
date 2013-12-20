@@ -14,9 +14,17 @@
 
 typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError *error);
 
-@interface TRVSEventSource : NSObject <NSURLSessionDelegate, NSURLSessionDataDelegate>
 
-// The URL that the event source receives events from.
+/**
+ `TRVSEventSource` is an Objective-C implementation of the EventSource DOM interface supported by modern browsers.
+ 
+ An event source opens an HTTP connection, and receives events as they are sent from the server. Each event is encoded as an `TRVSServerSentEvent` object, and dispatched to all listeners for that particular event type.
+ 
+ @see http://www.w3.org/TR/eventsource/
+ */
+@interface TRVSEventSource : NSObject <NSURLSessionDelegate, NSURLSessionDataDelegate, NSCopying, NSCoding>
+
+// The URL the event source receives events from.
 @property (nonatomic, strong, readonly) NSURL *URL;
 // The managed session.
 @property (nonatomic, strong, readonly) NSURLSession *URLSession;
@@ -29,6 +37,7 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 
 // @name connection state
 
+// The connection state can be in only one state at any given time.
 - (BOOL)isConnecting;
 - (BOOL)isOpen;
 - (BOOL)isClosed;
@@ -36,16 +45,52 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
 
 // @name initializing an event source
 
+/**
+ *  Initializes an `TRVSEventSource` object with the specified URL. The event source will open only by calling -[TRVSEventSource open].
+ *
+ *  @param URL The url the event source will receive events from.
+ *
+ *  @return The newly-initialized event source.
+ */
 - (instancetype)initWithURL:(NSURL *)URL;
 
 // @name opening and closing an event source
 
+/**
+ *  Opens a connection to the `URL` to receive events. The request specifies an `Accept` HTTP header field value of `text/event-stream`.
+ */
 - (void)open;
+
+/**
+ *  Closes the connection.
+ */
 - (void)close;
 
 // @name listening for events
 
+/**
+ *  Adds a listener to the event source thats runs the `eventHandler` block whenever an event is received with the given `event` name.
+ *
+ *  @param event        The name of the event to listen for.
+ *  @param eventHandler The block to run when events with the given name are received.
+ *
+ *  @return The identifier associated with the listener for the specified event. Pass this to `-[TRVSEventSource removeEventListenerWithIdentifier:]` to remove the listener.
+ */
 - (NSUInteger)addListenerForEvent:(NSString *)event
                 usingEventHandler:(TRVSEventSourceEventHandler)eventHandler;
+
+/**
+ Removes the event listener with the given identifier
+ 
+ @param identifier The identifier associated with the event listener.
+ 
+ @discussion The event listener identifier is returned when added with `-[TRVSEventSource addListenerForEvent:usingBlock:]`.
+ */
+- (void)removeEventListenerWithIdentifier:(NSUInteger)identifier;
+
+/**
+ * Removes all listeners for events of the given type.
+ */
+- (void)removeAllListenersForEvent:(NSString *)event;
 
 @end

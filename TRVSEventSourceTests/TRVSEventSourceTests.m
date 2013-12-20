@@ -21,12 +21,13 @@
 - (void)testEventSourceStreaming {
     // you must be running the local server. see README.md.
     TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:[NSURL URLWithString:@"http://127.0.0.1:8000"]];
-
     __block TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:3];
+    
     [eventSource addListenerForEvent:@"message" usingEventHandler:^(TRVSServerSentEvent *event, NSError *error) {
+        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:event.data options:0 error:NULL];
+
         XCTAssert(event);
         XCTAssertEqualObjects(@"message", event.event);
-        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:event.data options:0 error:NULL];
         XCTAssertEqualObjects(@1, dictionary[@"author_id"]);
         XCTAssertEqualObjects(@1, dictionary[@"conversation_id"]);
         XCTAssert(dictionary[@"body"]);
@@ -56,8 +57,8 @@
     }] eventSourceDidOpen:eventSource];
     
     [eventSource open];
-    XCTAssert(eventSource.isConnecting);
     
+    XCTAssert(eventSource.isConnecting);
     XCTAssert([monitor wait]);
     [delegate verify];
 }
@@ -80,13 +81,13 @@
     [[[delegate stub] andDo:^(NSInvocation *invocation) {
         [monitor signal];
     }] eventSourceDidOpen:eventSource];
-    
-    [eventSource open];
-    
+
     [[[delegate stub] andDo:^(NSInvocation *invocation) {
         XCTAssert(eventSource.isClosed);
         [monitor signal];
     }] eventSourceDidClose:eventSource];
+    
+    [eventSource open];
     
     XCTAssert([monitor wait]);
     [delegate verify];
