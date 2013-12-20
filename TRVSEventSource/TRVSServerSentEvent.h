@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface TRVSServerSentEvent : NSObject
+@interface TRVSServerSentEvent : NSObject <NSCoding, NSCopying>
 
 @property (nonatomic, copy, readonly) NSString *event;
 @property (nonatomic, copy, readonly) NSString *identifier;
