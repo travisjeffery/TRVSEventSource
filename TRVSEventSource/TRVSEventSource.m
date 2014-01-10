@@ -100,8 +100,10 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 - (void)removeEventListenerWithIdentifier:(NSUInteger)identifier {
     NSEnumerator *enumerator = [self.listenersKeyedByEvent keyEnumerator];
     id event = nil;
+    
     while ((event = [enumerator nextObject])) {
         NSMutableDictionary *mutableListenersKeyedByIdentifier = [self.listenersKeyedByEvent objectForKey:event];
+        
         if ([mutableListenersKeyedByIdentifier objectForKey:@(identifier)]) {
             [mutableListenersKeyedByIdentifier removeObjectForKey:@(identifier)];
             [self.listenersKeyedByEvent setObject:mutableListenersKeyedByIdentifier forKey:event];
@@ -164,8 +166,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     if (self.isClosing && error.code == NSURLErrorCancelled) {
         [self transitionToClosed];
-    }
-    else {
+    } else {
         [self transitionToFailedWithError:error];
     }
 }
@@ -180,24 +181,23 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
             TRVSServerSentEvent *event = [TRVSServerSentEvent eventWithFields:TRVSServerSentEventFieldsFromData([data subdataWithRange:NSMakeRange(self.offset, [data length] - self.offset)], &error)];
             self.offset = [data length];
 
-            if (error) {
-                [self transitionToFailedWithError:error];
+            if (error) [self transitionToFailedWithError:error];
+            
+            if (error || !event) break;
+            
+            [[self.listenersKeyedByEvent objectForKey:event.event] enumerateKeysAndObjectsUsingBlock:^(id _, TRVSEventSourceEventHandler eventHandler, BOOL *stop) {
+                eventHandler(event, nil);
+            }];
+            
+            if ([self.delegate respondsToSelector:@selector(eventSource:didReceiveEvent:)]) {
+                [self.delegate eventSource:self didReceiveEvent:event];
             }
-            else {
-                if (event) {
-                    [[self.listenersKeyedByEvent objectForKey:event.event] enumerateKeysAndObjectsUsingBlock:^(id _, TRVSEventSourceEventHandler eventHandler, BOOL *stop) {
-                        eventHandler(event, nil);
-                    }];
-
-                    if ([self.delegate respondsToSelector:@selector(eventSource:didReceiveEvent:)]) {
-                        [self.delegate eventSource:self didReceiveEvent:event];
-                    }
-                }
-            }
+    
             break;
         }
         case NSStreamEventErrorOccurred: {
             [self transitionToFailedWithError:self.outputStream.streamError];
+            
             break;
         }
         default: break;
@@ -208,7 +208,9 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     NSURL *URL = [aDecoder decodeObjectForKey:@"URL"];
+    
     if (!(self = [self initWithURL:URL])) return nil;
+    
     return self;
 }
 
@@ -228,8 +230,11 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     __weak typeof(self) weakSelf = self;
     dispatch_sync(self.syncQueue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
+        
         if (strongSelf.state != TRVSEventSourceConnecting) return;
+        
         strongSelf.state = TRVSEventSourceOpen;
+        
         if ([strongSelf.delegate respondsToSelector:@selector(eventSourceDidOpen:)]) {
             [strongSelf.delegate eventSourceDidOpen:self];
         }
@@ -238,6 +243,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)transitionToFailedWithError:(NSError *)error {
     self.state = TRVSEventSourceFailed;
+    
     if ([self.delegate respondsToSelector:@selector(eventSource:didFailWithError:)]) {
         [self.delegate eventSource:self didFailWithError:error];
     }
@@ -245,6 +251,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)transitionToClosed {
     self.state = TRVSEventSourceClosed;
+    
     if ([self.delegate respondsToSelector:@selector(eventSourceDidClose:)]) {
         [self.delegate eventSourceDidClose:self];
     }
