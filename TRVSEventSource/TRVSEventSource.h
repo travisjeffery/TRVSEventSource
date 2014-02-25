@@ -54,6 +54,17 @@ typedef void (^TRVSEventSourceEventHandler)(TRVSServerSentEvent *event, NSError 
  */
 - (instancetype)initWithURL:(NSURL *)URL;
 
+/**
+ *  Initializes an `TRVSEventSource` object with the specified URL and session configuration. The event source will open only by calling -[TRVSEventSource open].
+ *
+ *  @param URL The url the event source will receive events from.
+ *
+ *  @param sessionConfiguration The session configuration that will be used to initialize the session object.
+ *
+ *  @return The newly-initialized event source.
+ */
+- (instancetype)initWithURL:(NSURL *)URL sessionConfiguration:(NSURLSessionConfiguration *)sessionConfiguration;
+
 // @name opening and closing an event source
 
 /**
