@@ -21,7 +21,7 @@
 - (void)testEventSourceStreaming {
     // you must be running the local server. see README.md.
     TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:[NSURL URLWithString:@"http://127.0.0.1:8000"]];
-    __block TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:3];
+    TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:3];
     
     [eventSource addListenerForEvent:@"message" usingEventHandler:^(TRVSServerSentEvent *event, NSError *error) {
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:event.data options:0 error:NULL];
@@ -43,7 +43,7 @@
     TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:[NSURL URLWithString:@"http://127.0.0.1:8000"]];
     id delegate = [OCMockObject mockForClass:[TRVSEventSourceTestDelegate class]];
     eventSource.delegate = delegate;
-    __block TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:2];
+    TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:2];
     __weak typeof(eventSource) weakEventSource = eventSource;
 
     [eventSource addListenerForEvent:@"message" usingEventHandler:^(TRVSServerSentEvent *event, NSError *error) {
@@ -67,7 +67,7 @@
     TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:[NSURL URLWithString:@"http://127.0.0.1:8000"]];
     id delegate = [OCMockObject mockForClass:[TRVSEventSourceTestDelegate class]];
     eventSource.delegate = delegate;
-    __block TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:3];
+    TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:3];
     __weak typeof(eventSource) weakEventSource = eventSource;
     
     [eventSource addListenerForEvent:@"message" usingEventHandler:^(TRVSServerSentEvent *event, NSError *error) {
@@ -97,7 +97,7 @@
     TRVSEventSource *eventSource = [[TRVSEventSource alloc] initWithURL:[NSURL URLWithString:@"http://doesntexistdotcom:8000"]];
     id delegate = [OCMockObject mockForClass:[TRVSEventSourceTestDelegate class]];
     eventSource.delegate = delegate;
-    __block TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:1];
+    TRVSMonitor *monitor = [[TRVSMonitor alloc] initWithExpectedSignalCount:1];
     
     [[[delegate stub] andDo:^(NSInvocation *invocation) {
         [monitor signal];
