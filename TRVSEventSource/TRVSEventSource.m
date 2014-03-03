@@ -51,6 +51,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 };
 
 @interface TRVSEventSource () <NSStreamDelegate>
+
 @property (nonatomic, strong, readwrite) NSOperationQueue *operationQueue;
 @property (nonatomic, readwrite) dispatch_queue_t syncQueue;
 @property (nonatomic, strong, readwrite) NSURL *URL;
@@ -60,24 +61,26 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 @property (nonatomic, strong, readwrite) NSMapTable *listenersKeyedByEvent;
 @property (nonatomic, strong, readwrite) NSOutputStream *outputStream;
 @property (nonatomic, readwrite) NSUInteger offset;
+
 @end
 
 @implementation TRVSEventSource
 
+#pragma mark - Public
+
 - (instancetype)initWithURL:(NSURL *)URL {
-    return [self initWithURL:URL sessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    return [self initWithURL:URL sessionConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
 }
 
 - (instancetype)initWithURL:(NSURL *)URL sessionConfiguration:(NSURLSessionConfiguration *)sessionConfiguration {
-    if (!sessionConfiguration) return nil;
     if (!(self = [super init])) return nil;
     
-    self.operationQueue = [[NSOperationQueue alloc] init];
-    self.operationQueue.name = TRVSEventSourceOperationQueueName;
-    self.URL = URL;
-    self.listenersKeyedByEvent = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsCopyIn valueOptions:NSPointerFunctionsStrongMemory capacity:TRVSEventSourceListenersCapacity];
-    self.URLSession = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self delegateQueue:self.operationQueue];
-    self.syncQueue = dispatch_queue_create(TRVSEventSourceSyncQueueLabel, NULL);
+    _operationQueue = [[NSOperationQueue alloc] init];
+    _operationQueue.name = TRVSEventSourceOperationQueueName;
+    _URL = URL;
+    _listenersKeyedByEvent = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsCopyIn valueOptions:NSPointerFunctionsStrongMemory capacity:TRVSEventSourceListenersCapacity];
+    _URLSession = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self delegateQueue:_operationQueue];
+    _syncQueue = dispatch_queue_create(TRVSEventSourceSyncQueueLabel, NULL);
     
     return self;
 }
