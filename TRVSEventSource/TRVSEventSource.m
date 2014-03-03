@@ -65,15 +65,20 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 @implementation TRVSEventSource
 
 - (instancetype)initWithURL:(NSURL *)URL {
-    if (!(self = [super init])) return nil;
+    return [self initWithURL:URL sessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+}
 
+- (instancetype)initWithURL:(NSURL *)URL sessionConfiguration:(NSURLSessionConfiguration *)sessionConfiguration {
+    if (!sessionConfiguration) return nil;
+    if (!(self = [super init])) return nil;
+    
     self.operationQueue = [[NSOperationQueue alloc] init];
     self.operationQueue.name = TRVSEventSourceOperationQueueName;
     self.URL = URL;
     self.listenersKeyedByEvent = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsCopyIn valueOptions:NSPointerFunctionsStrongMemory capacity:TRVSEventSourceListenersCapacity];
-    self.URLSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:self.operationQueue];
+    self.URLSession = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self delegateQueue:self.operationQueue];
     self.syncQueue = dispatch_queue_create(TRVSEventSourceSyncQueueLabel, NULL);
-
+    
     return self;
 }
 
