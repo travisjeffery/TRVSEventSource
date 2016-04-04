@@ -12,14 +12,12 @@ static NSUInteger const TRVSEventSourceListenersCapacity = 100;
 static NSString *const TRVSEventSourceOperationQueueName =
     @"com.travisjeffery.TRVSEventSource.operationQueue";
 
-static NSDictionary *TRVSServerSentEventFieldsFromData(
-    NSData *data,
+static NSDictionary *TRVSServerSentEventFieldsFromString(
+    NSString *string,
     NSError *__autoreleasing *error) {
-  if (!data || [data length] == 0)
+  if (!string || [string length] == 0)
     return nil;
 
-  NSString *string =
-      [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   NSMutableDictionary *mutableFields = [NSMutableDictionary dictionary];
 
   for (NSString *line in [string componentsSeparatedByCharactersInSet:
@@ -57,7 +55,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
   TRVSEventSourceFailed
 };
 
-@interface TRVSEventSource ()<NSStreamDelegate>
+@interface TRVSEventSource ()
 
 @property (nonatomic, strong, readwrite) NSOperationQueue *operationQueue;
 @property (nonatomic, strong, readwrite) NSURL *URL;
@@ -65,8 +63,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 @property (nonatomic, strong, readwrite) NSURLSessionTask *URLSessionTask;
 @property (nonatomic, readwrite) TRVSEventSourceState state;
 @property (nonatomic, strong, readwrite) NSMapTable *listenersKeyedByEvent;
-@property (nonatomic, strong, readwrite) NSOutputStream *outputStream;
-@property (nonatomic, readwrite) NSUInteger offset;
+@property (nonatomic, strong) NSMutableString *buffer;
 
 @end
 
@@ -95,6 +92,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
   _URLSession = [NSURLSession sessionWithConfiguration:sessionConfiguration
                                               delegate:self
                                          delegateQueue:_operationQueue];
+  self.buffer = [NSMutableString stringWithCapacity:4096];
 
   return self;
 }
@@ -166,27 +164,38 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
-    didReceiveData:(NSData *)data {
-  NSUInteger length = data.length;
-  while (YES) {
-    NSInteger totalNumberOfBytesWritten = 0;
-    if (self.outputStream.hasSpaceAvailable) {
-      const uint8_t *dataBuffer = (uint8_t *)[data bytes];
-
-      NSInteger numberOfBytesWritten = 0;
-      while (totalNumberOfBytesWritten < (NSInteger)length) {
-        numberOfBytesWritten =
-            [self.outputStream write:&dataBuffer[0] maxLength:length];
-        if (numberOfBytesWritten == -1) {
-          return;
-        } else {
-          totalNumberOfBytesWritten += numberOfBytesWritten;
+    didReceiveData:(NSData *)data
+{
+    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    [self.buffer appendString:string];
+    NSRange range = [self.buffer rangeOfString:@"\n\n"];
+    
+    NSError *error;
+    TRVSServerSentEvent *event;
+    while (range.location != NSNotFound) @autoreleasepool {
+        error = nil;
+        event = [TRVSServerSentEvent eventWithFields:TRVSServerSentEventFieldsFromString([self.buffer substringToIndex:range.location], &error)];
+        [self.buffer deleteCharactersInRange:NSMakeRange(0, range.location + 2)];
+        
+        if (error)
+            [self transitionToFailedWithError:error];
+        
+        if (error || !event)
+            return;
+        
+        [[self.listenersKeyedByEvent objectForKey:event.event]
+         enumerateKeysAndObjectsUsingBlock:
+         ^(id _, TRVSEventSourceEventHandler eventHandler, BOOL *stop) {
+             eventHandler(event, nil);
+         }];
+        
+        if ([self.delegate
+             respondsToSelector:@selector(eventSource:didReceiveEvent:)]) {
+            [self.delegate eventSource:self didReceiveEvent:event];
         }
-      }
-
-      break;
+        
+        range = [self.buffer rangeOfString:@"\n\n"];
     }
-  }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -205,52 +214,6 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
     [self transitionToClosed];
   } else {
     [self transitionToFailedWithError:error];
-  }
-}
-
-#pragma mark - NSStreamDelegate
-
-- (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode {
-  switch (eventCode) {
-    case NSStreamEventHasSpaceAvailable: {
-      NSData *data =
-          [stream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
-      NSError *error = nil;
-      TRVSServerSentEvent *event = [TRVSServerSentEvent
-          eventWithFields:TRVSServerSentEventFieldsFromData(
-                              [data subdataWithRange:NSMakeRange(
-                                                         self.offset,
-                                                         [data length] -
-                                                             self.offset)],
-                              &error)];
-      self.offset = [data length];
-
-      if (error)
-        [self transitionToFailedWithError:error];
-
-      if (error || !event)
-        break;
-
-      [[self.listenersKeyedByEvent objectForKey:event.event]
-          enumerateKeysAndObjectsUsingBlock:
-              ^(id _, TRVSEventSourceEventHandler eventHandler, BOOL *stop) {
-                  eventHandler(event, nil);
-              }];
-
-      if ([self.delegate
-              respondsToSelector:@selector(eventSource:didReceiveEvent:)]) {
-        [self.delegate eventSource:self didReceiveEvent:event];
-      }
-
-      break;
-    }
-    case NSStreamEventErrorOccurred: {
-      [self transitionToFailedWithError:self.outputStream.streamError];
-
-      break;
-    }
-    default:
-      break;
   }
 }
 
@@ -307,30 +270,15 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)transitionToConnecting {
   self.state = TRVSEventSourceConnecting;
-  [self setupOutputStream];
+  [self.buffer setString:@""];
   self.URLSessionTask = [self.URLSession dataTaskWithURL:self.URL];
   [self.URLSessionTask resume];
 }
 
 - (void)transitionToClosing {
   self.state = TRVSEventSourceClosing;
-  [self closeOutputStream];
+  [self.buffer setString:@""];
   [self.URLSession invalidateAndCancel];
-}
-
-- (void)setupOutputStream {
-  self.outputStream = [NSOutputStream outputStreamToMemory];
-  self.outputStream.delegate = self;
-  [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
-                               forMode:NSDefaultRunLoopMode];
-  [self.outputStream open];
-}
-
-- (void)closeOutputStream {
-  self.outputStream.delegate = nil;
-  [self.outputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
-                               forMode:NSDefaultRunLoopMode];
-  [self.outputStream close];
 }
 
 @end
