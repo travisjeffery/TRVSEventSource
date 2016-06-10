@@ -271,7 +271,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)transitionToConnecting {
   self.state = TRVSEventSourceConnecting;
-  [_operationQueue addOperationWithBlock:^{
+  [self.operationQueue addOperationWithBlock:^{
     [self.buffer setString:@""];
   }];
   self.URLSessionTask = [self.URLSession dataTaskWithURL:self.URL];
@@ -280,7 +280,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)transitionToClosing {
   self.state = TRVSEventSourceClosing;
-  [_operationQueue addOperationWithBlock:^{
+  [self.operationQueue addOperationWithBlock:^{
     [self.buffer setString:@""];
   }];
   [self.URLSession invalidateAndCancel];
