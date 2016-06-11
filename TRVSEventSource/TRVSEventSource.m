@@ -84,6 +84,7 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
   _operationQueue = [[NSOperationQueue alloc] init];
   _operationQueue.name = TRVSEventSourceOperationQueueName;
+  _operationQueue.maxConcurrentOperationCount = 1;
   _URL = URL;
   _listenersKeyedByEvent =
       [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsCopyIn
@@ -270,14 +271,18 @@ typedef NS_ENUM(NSUInteger, TRVSEventSourceState) {
 
 - (void)transitionToConnecting {
   self.state = TRVSEventSourceConnecting;
-  [self.buffer setString:@""];
+  [self.operationQueue addOperationWithBlock:^{
+    [self.buffer setString:@""];
+  }];
   self.URLSessionTask = [self.URLSession dataTaskWithURL:self.URL];
   [self.URLSessionTask resume];
 }
 
 - (void)transitionToClosing {
   self.state = TRVSEventSourceClosing;
-  [self.buffer setString:@""];
+  [self.operationQueue addOperationWithBlock:^{
+    [self.buffer setString:@""];
+  }];
   [self.URLSession invalidateAndCancel];
 }
 
