@@ -1,3 +1,8 @@
+0.0.8: jun 13 2016
+
+- keep memory consumption low after running for a while
+- synchronize write on string buffer
+
 0.0.7: dec 20 2013
 
 - made the event source and server sent events conform to nscopying, nscoding
